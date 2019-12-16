@@ -2,6 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+Model_0.991304337978363_16-15-46.h5
+Model_0.991304337978363_16-15-46.h5.json
+entrenamiento.pkl
+.DS_Store
+Imagenes/
 
 # C extensions
 *.so
