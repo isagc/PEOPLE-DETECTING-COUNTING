@@ -19,8 +19,14 @@ def loadImageAsGray(imagePath):
     im = cv2.imread(imagePath)
     return cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
+def resizeRecortada(filepath):
+    im = loadImageAsGray(filepath)
+    im = cv2.resize(im, (128,128))
+    cv2.imwrite(filepath,im)
+
 
 path = "./Imagenes/PennFudanPed/PNGImages/FudanPed00001.png"
+resizeRecortada(path)
 img = loadImageAsGray(path)
 img = img / 255
 x , y = img.shape
@@ -54,23 +60,24 @@ def applyModel(path):
     original_shape = img.shape #Guardo su shape original en una variable para el futuro
     img2 = img.copy() #Me hago una copia de la imagen con la que voy a trabajar
     img2 = cv2.resize(img2, (128,128)) #Le hago un resize a la copia, para pasarla a tamaño 128x128 (la foto entera)
+    resultados = []
     for i in getWindow(x,y,size=32,step=16): #Obtengo las coordenadas de las ventanas
         crop = img[i['xmin']:i['xmax'], i['ymin']:i['ymax']] #Saco las coordenadas de cada ventana 
         crop_128 = cv2.resize(crop, (128,128))
         plt.imshow(crop)
         #print(crop)
-        print(crop.shape)
-        print(crop_128.shape)
+        #print(crop.shape)
+        #print(crop_128.shape)
         
         prepared_data = np.expand_dims(np.expand_dims(crop_128,axis=3),axis=0)
         pred = model.predict(prepared_data)[0]
         
-        print(i)
-        print("Probs -> No:{0:.5f} Yes:{1:.5f}".format(pred[0],pred[1]))
-        
-        crop_original = cv2.resize(crop_128, (32,32))
-        #print(crop_original.shape)
-    return 'NO' if pred[0]>pred[1] else 'YES'
+        if pred[1]>pred[0]:
+            print(i)
+            #print("Probability that there is a person in window -> Yes:{1:.5f}".format(pred[1]))
+            print("Probs -> No:{0:.5f} Yes:{1:.5f}".format(pred[0],pred[1]))
+            resultados.append((i, "Probs -> No:{0:.5f} Yes:{1:.5f}".format(pred[0],pred[1])))
     
-    
-applyModel(path)
+    return resultados
+
+
